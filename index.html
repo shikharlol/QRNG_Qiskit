@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRNG — Quantum Random Number Generator</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&family=Syne:wght@400;600;800&family=Syne+Mono&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Background canvas for quantum field animation -->
+  <canvas id="field-canvas"></canvas>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">
+      <span class="nav-logo">⟨ψ|</span>
+      <span class="nav-title">QRNG</span>
+    </div>
+    <div class="nav-links">
+      <a href="#generator">Generator</a>
+      <a href="#theory">Theory</a>
+      <a href="#stats">Statistics</a>
+    </div>
+    <div class="nav-badge">Undergraduate Project</div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-label">Mini Project · Quantum Computing</div>
+    <h1 class="hero-title">
+      Quantum<br/>
+      <span class="hero-accent">Random</span><br/>
+      Number Generator
+    </h1>
+    <p class="hero-sub">
+      Harnessing quantum superposition and wave function collapse to produce
+      cryptographically-strong, truly non-deterministic random numbers.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-chip"><span class="chip-dot chip-green"></span>Quantum Entropy Source</div>
+      <div class="meta-chip"><span class="chip-dot chip-blue"></span>Web Crypto API</div>
+      <div class="meta-chip"><span class="chip-dot chip-amber"></span>Real-time Visualization</div>
+    </div>
+    <a href="#generator" class="hero-cta">Launch Generator →</a>
+  </section>
+
+  <!-- GENERATOR SECTION -->
+  <section class="section" id="generator">
+    <div class="section-label">01 / Generator</div>
+    <h2 class="section-title">Quantum Measurement Engine</h2>
+
+    <!-- Qubit Visualizer -->
+    <div class="qubit-panel">
+      <div class="panel-header">
+        <span class="panel-heading">Qubit State Visualizer</span>
+        <div class="panel-status">
+          <span class="status-dot"></span>
+          <span id="status-text">Superposition active</span>
+        </div>
+      </div>
+      <div class="qubit-grid" id="qubit-grid"></div>
+      <div class="bloch-row" id="bloch-row"></div>
+    </div>
+
+    <!-- Main Output -->
+    <div class="output-panel">
+      <div class="output-main">
+        <div class="output-block">
+          <div class="out-label">Decimal</div>
+          <div class="out-value" id="out-decimal">—</div>
+        </div>
+        <div class="output-divider"></div>
+        <div class="output-block">
+          <div class="out-label">Hexadecimal</div>
+          <div class="out-value out-hex" id="out-hex">—</div>
+        </div>
+        <div class="output-divider"></div>
+        <div class="output-block">
+          <div class="out-label">Binary</div>
+          <div class="out-value out-bin" id="out-bin">—</div>
+        </div>
+      </div>
+      <div class="entropy-track">
+        <div class="entropy-label">
+          <span>Quantum Entropy</span>
+          <span id="entropy-pct">0%</span>
+        </div>
+        <div class="entropy-bar-bg">
+          <div class="entropy-bar-fill" id="entropy-fill"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-grid">
+      <div class="ctrl-card">
+        <div class="ctrl-name">Qubit Count</div>
+        <div class="ctrl-desc">Number of quantum bits measured per sample</div>
+        <div class="ctrl-row">
+          <input type="range" id="ctrl-qubits" min="1" max="16" value="8" step="1" />
+          <span class="ctrl-val" id="val-qubits">8</span>
+        </div>
+      </div>
+      <div class="ctrl-card">
+        <div class="ctrl-name">Min Value</div>
+        <div class="ctrl-desc">Lower bound of scaled output range</div>
+        <div class="ctrl-row">
+          <input type="range" id="ctrl-min" min="0" max="999" value="0" step="1" />
+          <span class="ctrl-val" id="val-min">0</span>
+        </div>
+      </div>
+      <div class="ctrl-card">
+        <div class="ctrl-name">Max Value</div>
+        <div class="ctrl-desc">Upper bound of scaled output range</div>
+        <div class="ctrl-row">
+          <input type="range" id="ctrl-max" min="1" max="65535" value="255" step="1" />
+          <span class="ctrl-val" id="val-max">255</span>
+        </div>
+      </div>
+      <div class="ctrl-card">
+        <div class="ctrl-name">Auto-Measure Rate</div>
+        <div class="ctrl-desc">Milliseconds between automatic measurements</div>
+        <div class="ctrl-row">
+          <input type="range" id="ctrl-rate" min="200" max="5000" value="1000" step="100" />
+          <span class="ctrl-val" id="val-rate">1000 ms</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-group">
+      <button class="btn btn-primary" id="btn-measure" onclick="measure()">
+        <span class="btn-icon">⊗</span> Measure Qubits
+      </button>
+      <button class="btn btn-secondary" id="btn-auto" onclick="toggleAuto()">
+        <span class="btn-icon">▶</span> Auto Mode
+      </button>
+      <button class="btn btn-ghost" onclick="copyLast()">
+        <span class="btn-icon">⎘</span> Copy
+      </button>
+      <button class="btn btn-ghost" onclick="clearAll()">
+        <span class="btn-icon">↺</span> Clear
+      </button>
+    </div>
+
+    <!-- History -->
+    <div class="history-panel">
+      <div class="history-header">
+        <span>Measurement History</span>
+        <span id="history-count">0 samples</span>
+      </div>
+      <div class="history-table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Decimal</th>
+              <th>Hex</th>
+              <th>Binary</th>
+              <th>Bits</th>
+              <th>Entropy</th>
+            </tr>
+          </thead>
+          <tbody id="history-body">
+            <tr class="empty-row">
+              <td colspan="6">No measurements yet. Click <strong>Measure Qubits</strong> to begin.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- THEORY SECTION -->
+  <section class="section section-dark" id="theory">
+    <div class="section-label">02 / Theory</div>
+    <h2 class="section-title">Quantum Principles</h2>
+
+    <div class="theory-grid">
+      <div class="theory-card">
+        <div class="theory-icon">|ψ⟩</div>
+        <h3>Superposition</h3>
+        <p>
+          A qubit exists in a superposition of states |0⟩ and |1⟩ simultaneously,
+          described by the state vector |ψ⟩ = α|0⟩ + β|1⟩, where |α|² + |β|² = 1.
+          This fundamental quantum property enables genuine randomness.
+        </p>
+        <div class="theory-formula">|ψ⟩ = α|0⟩ + β|1⟩</div>
+      </div>
+      <div class="theory-card">
+        <div class="theory-icon">⟨x|ψ⟩</div>
+        <h3>Wave Function Collapse</h3>
+        <p>
+          Measuring a qubit forces it to collapse irreversibly into a definite state.
+          The probability of observing |0⟩ or |1⟩ is governed by Born's rule —
+          P(0) = |α|², P(1) = |β|² — making outcomes intrinsically unpredictable.
+        </p>
+        <div class="theory-formula">P(x) = |⟨x|ψ⟩|²</div>
+      </div>
+      <div class="theory-card">
+        <div class="theory-icon">H = 1/√2</div>
+        <h3>Hadamard Gate</h3>
+        <p>
+          Applying the Hadamard gate to a qubit in state |0⟩ creates a perfect
+          50/50 superposition. This is the foundation of quantum random number
+          generation — each measurement yields an unbiased random bit.
+        </p>
+        <div class="theory-formula">H|0⟩ = (|0⟩ + |1⟩)/√2</div>
+      </div>
+      <div class="theory-card">
+        <div class="theory-icon">H(X)</div>
+        <h3>Quantum Entropy</h3>
+        <p>
+          Unlike classical pseudo-random generators (PRNGs) that are deterministic,
+          quantum randomness is fundamentally non-deterministic. Shannon entropy
+          H(X) = −Σ p(x) log₂ p(x) is maximized at 1 bit per qubit measurement.
+        </p>
+        <div class="theory-formula">H(X) = −Σ pᵢ log₂ pᵢ</div>
+      </div>
+    </div>
+
+    <div class="vs-panel">
+      <div class="vs-col">
+        <div class="vs-header vs-classical">Classical PRNG</div>
+        <ul class="vs-list">
+          <li class="vs-bad">Deterministic algorithm</li>
+          <li class="vs-bad">Periodic — eventually repeats</li>
+          <li class="vs-bad">Predictable with seed knowledge</li>
+          <li class="vs-bad">Software entropy only</li>
+          <li class="vs-ok">Fast and reproducible</li>
+          <li class="vs-ok">No hardware required</li>
+        </ul>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="vs-col">
+        <div class="vs-header vs-quantum">Quantum TRNG</div>
+        <ul class="vs-list">
+          <li class="vs-good">Truly non-deterministic</li>
+          <li class="vs-good">Never periodic by physics</li>
+          <li class="vs-good">Unpredictable even in principle</li>
+          <li class="vs-good">Physical quantum entropy</li>
+          <li class="vs-ok">Slower than PRNGs</li>
+          <li class="vs-ok">Requires quantum hardware</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATISTICS SECTION -->
+  <section class="section" id="stats">
+    <div class="section-label">03 / Statistics</div>
+    <h2 class="section-title">Distribution Analysis</h2>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Samples</div>
+        <div class="stat-value" id="stat-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Mean</div>
+        <div class="stat-value" id="stat-mean">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Std Deviation</div>
+        <div class="stat-value" id="stat-std">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Min Observed</div>
+        <div class="stat-value" id="stat-min">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Max Observed</div>
+        <div class="stat-value" id="stat-max">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Entropy</div>
+        <div class="stat-value" id="stat-entropy">—</div>
+      </div>
+    </div>
+
+    <div class="chart-panel">
+      <div class="chart-header">Frequency Distribution (last 100 samples)</div>
+      <canvas id="dist-chart" height="200"></canvas>
+      <div class="chart-footer">
+        <span id="chart-label-left">Min</span>
+        <span>Uniformity score: <strong id="uniformity-score">—</strong></span>
+        <span id="chart-label-right">Max</span>
+      </div>
+    </div>
+
+    <div class="bitstream-panel">
+      <div class="bs-header">Live Bit Stream</div>
+      <div class="bitstream" id="bitstream"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">⟨ψ| QRNG</div>
+      <div class="footer-info">
+        <p>Quantum Random Number Generator · Undergraduate Mini Project</p>
+        <p>Entropy source: <code>window.crypto.getRandomValues()</code> · Web Cryptography API (NIST SP 800-90A)</p>
+      </div>
+      <div class="footer-stack">HTML · CSS · JavaScript · Web Crypto</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
