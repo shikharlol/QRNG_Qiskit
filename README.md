@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # QRNG — Quantum Random Number Generator
 ### Undergraduate Mini Project | Quantum Computing
 
@@ -81,3 +82,10 @@ In a physical quantum computer, a Hadamard gate would be applied to each qubit b
 - **Web Cryptography API** — `crypto.getRandomValues()` for quantum-grade entropy
 - **Canvas 2D API** — Background field animation and distribution chart
 - **Google Fonts** — IBM Plex Mono, Syne (loaded via CDN)
+=======
+# QRNG_Qiskit
+A browser-based Quantum Random Number Generator that simulates qubit superposition and wave function collapse to produce cryptographically-strong random numbers. Built with HTML, CSS, and JavaScript — no dependencies, no install.
+# Overview
+QRNG is an interactive web app that demonstrates core quantum computing principles — superposition, the Hadamard gate, and Born's rule — through a real-time random number generator. Randomness is sourced from window.crypto.getRandomValues(), a hardware-seeded entropy pool compliant with NIST SP 800-90A, making it the closest analog to true quantum randomness available in a browser.
+Each "measurement" simulates n qubits collapsing from superposition into definite 0/1 states. The result is displayed in decimal, hexadecimal, and binary, alongside a live Shannon entropy score, frequency distribution histogram, and running statistics.
+>>>>>>> 7019c6ba1b68c4d79b16be43afa11e15038c7c19
