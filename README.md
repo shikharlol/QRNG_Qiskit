@@ -1,6 +1,6 @@
 
 # QRNG — Quantum Random Number Generator
-### Undergraduate Mini Project | Quantum Computing
+###  Mini Project | Quantum Computing
 
 ---
 
